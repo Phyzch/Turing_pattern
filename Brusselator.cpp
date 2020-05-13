@@ -6,30 +6,7 @@
 using namespace std;
 long timee = time(NULL);
 long timee1 = long(time(NULL));
-double Brusselator_reaction::length = 0.1; // length stands for the size of compartment
-//below are diffusion rates scaled with the length we set for each box(0.1)
-double Brusselator_reaction::DVm = 0.012*1 / (Brusselator_reaction::length * Brusselator_reaction::length) ;
-double Brusselator_reaction::DUm = 0.3*1 / (Brusselator_reaction::length * Brusselator_reaction::length);
-double Brusselator_reaction::DUc = 0.3 / (Brusselator_reaction::length * Brusselator_reaction::length);
-double Brusselator_reaction::V =  11 *Brusselator_reaction::length *120/400;      // change volume here
-// V is the ratio of molecular number and concentration in one compartment, for V=1* length*120/400, it is around
-//below are reaction coefficient beta, gamma, alpha, sigma, sigma1, epsilon(ep), beta1, sigma2
-double Brusselator_reaction::beta = 1.5*1e-4/(pow(10 * Brusselator_reaction::length *120/400,2)); // we stop rescale reaction parameters for particle number here.
-double Brusselator_reaction::gamma = 3.6;
-double Brusselator_reaction::alpha =0.5;    // change here
-double sigma_magnitude = 1;
-double Brusselator_reaction::sigma = log(2)/50 *sigma_magnitude;
-double Brusselator_reaction::sigma1 = log(2)/50 * sigma_magnitude;
-double Brusselator_reaction::ep = 3 * Brusselator_reaction::sigma;
-double Brusselator_reaction::beta1 = 0.1 *Brusselator_reaction::beta;     // change here
-double Brusselator_reaction::sigma2 = 0.001 *Brusselator_reaction::sigma1;
-// below are initial concentration of Um, Vm, Uc.
-int Brusselator_reaction::Um0 = 123* Brusselator_reaction::V;
-int Brusselator_reaction::Vm0 = 177* Brusselator_reaction::V;
-int Brusselator_reaction::Uc0 = 100* Brusselator_reaction::V;
-// below ar echemical reaction potential
-double Brusselator_reaction::chemical_potential = log(Brusselator_reaction::beta / Brusselator_reaction::beta1  * Brusselator_reaction::gamma / Brusselator_reaction::alpha );
-double Brusselator_reaction::c[M + 1] = { 0, beta, beta1, gamma, alpha, sigma, ep, sigma1, sigma2, DUm, DVm, DUc  };
+
 // c[1] to c[8]: reaction coefficient. c[9] to c[11]: diffusion to next box
 // For num of molecules see reference Murray 2017 Nature.Phys, Fig1.f around 10-30 molecules in each compartment
 Brusselator_reaction & Brusselator_reaction::operator =(const Brusselator_reaction & s) {
@@ -230,7 +207,7 @@ void Brusselator_reaction::Gillespie_simulation(double &duration, double aa, dou
 	a[6] = c[6] * S[2];
 	a[7] = c[7] * S[1];
 	a[8] = c[8] * S[2];
-	// an extra step we have to take for using Gillespie algorithm to  simulate spatially extended system is to we have to update the change of 
+	// an extra step we have to take for using Gillespie algorithm to  simulate spatially extended system is to we have to update the change of
 	// diffusion rate in other box due to the change of species concentration
 	if (next != NULL) {
 		a[9] = c[9] * abs(S[0] - next->S[0]);
