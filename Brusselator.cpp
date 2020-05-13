@@ -6,7 +6,9 @@
 using namespace std;
 long timee = time(NULL);
 long timee1 = long(time(NULL));
-
+// below are chemical reaction potential
+double Brusselator_reaction::chemical_potential = log(Brusselator_reaction::beta_12 / Brusselator_reaction::beta_21  * Brusselator_reaction::k_21 / Brusselator_reaction::k_12 );
+double Brusselator_reaction::c[M + 1] = { 0, beta_12, beta_21, k_21, k_12, k_13, k_31, k_32, k_23, DUm, DVm, DUc  };
 // c[1] to c[8]: reaction coefficient. c[9] to c[11]: diffusion to next box
 // For num of molecules see reference Murray 2017 Nature.Phys, Fig1.f around 10-30 molecules in each compartment
 Brusselator_reaction & Brusselator_reaction::operator =(const Brusselator_reaction & s) {

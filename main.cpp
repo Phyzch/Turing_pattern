@@ -27,12 +27,13 @@ double Brusselator_reaction::DUc = 0.3 / (Brusselator_reaction::length * Brussel
 double Brusselator_reaction::Nparticle =  10 *Brusselator_reaction::length *120/400;
 
 //below are reaction coefficient beta_12, k_21, k_12, k_13, k_32, k_31, beta_21, k_23. remember we already tune beta12 to make it work with 10 times particle numbers, you can change it.
+// Parameters only link with X_{1}, X_{2}
 double Brusselator_reaction::beta_12 = 1.5*1e-4/(pow(10 * Brusselator_reaction::length *120/400,2)); // we stop rescale reaction parameters for particle number here.
 double Brusselator_reaction::beta_21 = 0.1 *Brusselator_reaction::beta_12;
 double Brusselator_reaction::k_21 = 3.6;
 double Brusselator_reaction::k_12 =0.5;
 
-// parameters link with k_13, k_31,k_12,k_21.
+// parameters link with X_{3}
 double Brusselator_reaction::k_13 = log(2)/50;
 double Brusselator_reaction::k_32 = log(2)/50;
 double Brusselator_reaction::k_31 = 3 * Brusselator_reaction::k_13;
@@ -44,10 +45,13 @@ int Brusselator_reaction::Vm0 = 177* Brusselator_reaction::Nparticle;
 int Brusselator_reaction::Uc0 = 100* Brusselator_reaction::Nparticle;
 
 // total simulation time we are going to run in our program.
-double simulation_time = 2500;
+double simulation_time = 500;
 
-//choice to if begin continue simulation to store data in Brusselator_system.txt or append simulation result in the file.
+//choice to append result to simulation result we already have or to do it from beginning.
 bool append=false;
+
+// early check if the pattern form 3 stripe pattern. (if not we will just stop simulation at t=200) (done by at t=200, we check the position of peak of pattern.)
+bool early_check=false;
 
 int main() {
     int i; // i means the file number, we cam generate many files simulated using different parameters or same parameters

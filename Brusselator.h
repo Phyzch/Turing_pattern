@@ -7,6 +7,7 @@
 #include<string.h>
 using namespace std;
 extern bool append;
+extern bool early_check;
 float ran2(long& idum);
 class Brusselator_reaction {
 	// Class for different local reaction box

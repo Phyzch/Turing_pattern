@@ -169,17 +169,25 @@ void Brusselator_reaction_system::System_evolve(double simulation_time) {
 		}
 
 		// We make decision if we need to discard this simulation
-		if (abs(t - 200) < 2 * tau  ) {
-			maxVmparticlenumber = maxVm();
-			if ((s[numbox / 6].S[1] > 0.6*maxVmparticlenumber|| s[numbox / 6-1].S[1] > 0.6*maxVmparticlenumber || s[numbox / 6+1].S[1] > 0.6*maxVmparticlenumber)
-				& (s[3 * numbox / 6].S[1] > 0.6*maxVmparticlenumber || s[3 * numbox / 6-1].S[1] > 0.6*maxVmparticlenumber || s[3 * numbox / 6+1].S[1] > 0.6*maxVmparticlenumber) & (s[5 * numbox / 6].S[1] > 0.6*maxVmparticlenumber || s[5 * numbox / 6-1].S[1] > 0.6*maxVmparticlenumber || s[5 * numbox / 6+1].S[1] > 0.6*maxVmparticlenumber)) {
-				// we could continue our simulation
-				cout << sequence_number << endl;
-			}
-			else {
-				break; // pattern not right, discard this data.
-			}
-		}
+		if(early_check) {
+            if (abs(t - 200) < 2 * tau) {
+                maxVmparticlenumber = maxVm();
+                if ((s[numbox / 6].S[1] > 0.6 * maxVmparticlenumber ||
+                     s[numbox / 6 - 1].S[1] > 0.6 * maxVmparticlenumber ||
+                     s[numbox / 6 + 1].S[1] > 0.6 * maxVmparticlenumber)
+                    & (s[3 * numbox / 6].S[1] > 0.6 * maxVmparticlenumber ||
+                       s[3 * numbox / 6 - 1].S[1] > 0.6 * maxVmparticlenumber ||
+                       s[3 * numbox / 6 + 1].S[1] > 0.6 * maxVmparticlenumber) &
+                    (s[5 * numbox / 6].S[1] > 0.6 * maxVmparticlenumber ||
+                     s[5 * numbox / 6 - 1].S[1] > 0.6 * maxVmparticlenumber ||
+                     s[5 * numbox / 6 + 1].S[1] > 0.6 * maxVmparticlenumber)) {
+                    // we could continue our simulation
+                    cout << sequence_number << endl;
+                } else {
+                    break; // pattern not right, discard this data.
+                }
+            }
+        }
 
 		do random1 = ran2(timee); while (random1 == 0);
 		do random2 = ran2(timee); while (random2 == 0);
