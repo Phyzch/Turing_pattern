@@ -13,6 +13,7 @@ Brusselator_reaction_system::Brusselator_reaction_system(string path1, bool load
 	reaction_W2 = 0;
 	sequence_number = sequence_number1;
 	path = path1;
+    set_input_parameter();
 	// create memory space for Brusselator_reaction class entity, with number of numbox(60 in our codes)
 	void * rawMemory = operator new(numbox * sizeof(Brusselator_reaction));
 	s = reinterpret_cast<Brusselator_reaction *>(rawMemory);
@@ -108,7 +109,7 @@ int Brusselator_reaction_system::maxVm() { // output Vm's max concentration
 
 
 
-void Brusselator_reaction_system::System_evolve(double simulation_time) {
+void Brusselator_reaction_system::System_evolve() {
 	int i;
 	bool mark;
 	double a;
@@ -319,4 +320,55 @@ void Brusselator_reaction_system::save_data(){
            Brusselator_reaction::k_12 << "," << Brusselator_reaction::DUm << "," << Brusselator_reaction::DVm << "," << Brusselator_reaction::DUc << "," <<
            Brusselator_reaction::k_13 << "," << Brusselator_reaction::k_32 << "," << Brusselator_reaction::k_23 << "," << Brusselator_reaction::k_31 << endl;
     outfile.close();
+}
+
+
+void Brusselator_reaction_system::set_input_parameter(){
+    string parameter_file_name = path + "/input.txt";
+    ifstream input;
+    input.open(parameter_file_name);
+    if (input.is_open()) {
+        input >> Brusselator_reaction_system::numbox >> Brusselator_reaction::length;
+        double Nparticle_scale;
+        input >> Nparticle_scale;
+        Brusselator_reaction::Nparticle = Nparticle_scale * Brusselator_reaction::length * 120 / 400;
+        input >> Brusselator_reaction_system::simulation_time;
+
+        input >> Brusselator_reaction::DUm >> Brusselator_reaction::DVm >> Brusselator_reaction::DUc;
+        Brusselator_reaction::DUm =
+                Brusselator_reaction::DUm / (Brusselator_reaction::length * Brusselator_reaction::length);
+        Brusselator_reaction::DVm =
+                Brusselator_reaction::DVm / (Brusselator_reaction::length * Brusselator_reaction::length);
+        Brusselator_reaction::DUc =
+                Brusselator_reaction::DUc / (Brusselator_reaction::length * Brusselator_reaction::length);
+        input >> Brusselator_reaction::beta_12;
+        Brusselator_reaction::beta_12=Brusselator_reaction::beta_12/(pow(10 * Brusselator_reaction::length *120/400,2));
+        double beta_21_ratio;
+        input >> beta_21_ratio;
+        Brusselator_reaction::beta_21 = beta_21_ratio * Brusselator_reaction::beta_12;
+        input >> Brusselator_reaction::k_21 >> Brusselator_reaction::k_12 >> Brusselator_reaction::k_13
+              >> Brusselator_reaction::k_32 >> Brusselator_reaction::k_31 >> Brusselator_reaction::k_23;
+        // below are initial concentration of Um, Vm, Uc.
+        Brusselator_reaction::Um0 = 123 * Brusselator_reaction::Nparticle;
+        Brusselator_reaction::Vm0 = 177 * Brusselator_reaction::Nparticle;
+        Brusselator_reaction::Uc0 = 100 * Brusselator_reaction::Nparticle;
+
+        // set c:
+        Brusselator_reaction::c[1] = Brusselator_reaction::beta_12;
+        Brusselator_reaction::c[2] = Brusselator_reaction::beta_21;
+        Brusselator_reaction::c[3] = Brusselator_reaction::k_21;
+        Brusselator_reaction::c[4] = Brusselator_reaction::k_12;
+        Brusselator_reaction::c[5] = Brusselator_reaction::k_13;
+        Brusselator_reaction::c[6] = Brusselator_reaction::k_31;
+        Brusselator_reaction::c[7] = Brusselator_reaction::k_32;
+        Brusselator_reaction::c[8] = Brusselator_reaction::k_23;
+        Brusselator_reaction::c[9] = Brusselator_reaction::DUm;
+        Brusselator_reaction::c[10] = Brusselator_reaction::DVm;
+        Brusselator_reaction::c[11] = Brusselator_reaction::DUc;
+        Brusselator_reaction::chemical_potential = log(Brusselator_reaction::beta_12 / Brusselator_reaction::beta_21  * Brusselator_reaction::k_21 / Brusselator_reaction::k_12 );
+    }
+    else{
+        cout<<"Can not open input file. Check if you set it right."<<endl;
+    }
+    input.close();
 }

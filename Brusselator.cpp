@@ -60,14 +60,20 @@ void Brusselator_reaction::initialize_a() {
 	a[8] = c[8] * S[2];
 	// diffusion to the next box. a[9]: Um diffusion rate, a[10]: Vm reaction rate. a[11]: Uc reaction rate
 	if (next != NULL) {
-		a[9] = c[9] * abs(S[0] - next->S[0]);
-		a[10] = c[10] * abs(S[1] - next->S[1]);
-		a[11] = c[11] * abs(S[2] - next->S[2]);
+		a[9] = c[9] * S[0];
+		a[10] = c[10] * S[1];
+		a[11] = c[11] * S[2];
+		a[12]= c[9] * next->S[0];
+		a[13]= c[10] * next->S[1];
+		a[14]= c[11] * next->S[2];
 	}
 	else {
 		a[9] = 0;
 		a[10] = 0;
 		a[11] = 0;
+		a[12]=0;
+		a[13]=0;
+		a[14]=0;
 	}
 	a[0] = 0;
 	int i;
@@ -166,38 +172,35 @@ void Brusselator_reaction::Gillespie_simulation(double &duration, double aa, dou
 		dW = log(a[8] / a[7]);
 		break;
 	case 9:
-		if (S[0] > next->S[0]) {
-			S[0]--;
-			next->S[0]++;
-		}
-		else {
-			S[0]++;
-			next->S[0]--;
-		}
-		dW = abs((log(float(S[0]) / next->S[0])));
+        S[0]--;
+        next->S[0]++;
+		dW = log(float(S[0]) / next->S[0]);
 		break;
 	case 10:
-		if (S[1] > next->S[1]) {
-			S[1]--;
-			next->S[1]++;
-		}
-		else {
-			S[1]++;
-			next->S[1]--;
-		}
-		dW = abs((log(float(S[1]) / next->S[1])));
+        S[1]--;
+        next->S[1]++;
+		dW = log(float(S[1]) / next->S[1]);
 		break;
 	case 11:
-		if (S[2] > next->S[2]) {
-			S[2]--;
-			next->S[2]++;
-		}
-		else {
-			S[2]++;
-			next->S[2]--;
-		}
-		dW = abs((log(float(S[2]) / next->S[2])));
+        S[2]--;
+        next->S[2]++;
+		dW = log(float(S[2]) / next->S[2]);
 		break;
+    case 12:
+        S[0]++;
+        next->S[0]--;
+        dW=log(float(next->S[0])/S[0]);
+        break;
+    case 13:
+        S[1]++;
+        next->S[1]--;
+        dW=log(float(next->S[1])/S[1]);
+        break;
+    case 14:
+	    S[2]++;
+	    next->S[2]--;
+	    dW=log(float(next->S[2])/S[2]);
+	    break;
 	}
 	count++;
 	// ����a
@@ -212,26 +215,32 @@ void Brusselator_reaction::Gillespie_simulation(double &duration, double aa, dou
 	// an extra step we have to take for using Gillespie algorithm to  simulate spatially extended system is to we have to update the change of
 	// diffusion rate in other box due to the change of species concentration
 	if (next != NULL) {
-		a[9] = c[9] * abs(S[0] - next->S[0]);
-		a[10] = c[10] * abs(S[1] - next->S[1]);
-		a[11] = c[11] * abs(S[2] - next->S[2]);
+        a[9] = c[9] * S[0];
+        a[10] = c[10] * S[1];
+        a[11] = c[11] * S[2];
+        a[12]= c[9] * next->S[0];
+        a[13]= c[10] * next->S[1];
+        a[14]= c[11] * next->S[2];
 	}
 	else {
 		// last box.
-		a[9] = 0;
-		a[10] = 0;
-		a[11] = 0;
+        a[9] = 0;
+        a[10] = 0;
+        a[11] = 0;
+        a[12]=0;
+        a[13]=0;
+        a[14]=0;
 	}
 	if (num != 0) {
 		// not first box, we have to updat previous box's diffusion rate and total reaction rate a[0]
-		double previousrate = previous->a[9] + previous->a[10] + previous->a[11];
-		previous->a[9] = c[9] * abs(previous->S[0] - S[0]);
-		previous->a[10] = c[10] * abs(previous->S[1] - S[1]);
-		previous->a[11] = c[11] * abs(previous->S[2] - S[2]);
-		previous->a[0] = previous->a[0] - previousrate + previous->a[9] + previous->a[10] + previous->a[11];
+		double previousrate = previous->a[12] + previous->a[13] + previous->a[14];
+		previous->a[12] = c[9] * S[0];
+		previous->a[13] = c[10] * S[1];
+		previous->a[14] = c[11] * S[2];
+		previous->a[0] = previous->a[0] - previousrate + previous->a[12] + previous->a[13] + previous->a[14];
 	}
-	if (miu1 == 9 || miu1 == 10 || miu1 == 11) {
-		// species diffuse to next box, so we een have to update the next box's reaction rate
+	if (miu1 == 9 || miu1 == 10 || miu1 == 11|| miu1==12||miu1==13||miu1==14) {
+		// species diffuse to next box, so we  have to update the next box's reaction rate
 		next->a[1] = c[1] * next->S[0] * next->S[1] * next->S[1];
 		next->a[2] = c[2] * next->S[1] * next->S[1] * next->S[1];
 		next->a[3] = c[3] * next->S[1];
@@ -241,9 +250,9 @@ void Brusselator_reaction::Gillespie_simulation(double &duration, double aa, dou
 		next->a[7] = c[7] * next->S[1];
 		next->a[8] = c[8] * next->S[2];
 		if (next->next != NULL) {
-			next->a[9] = c[9] * abs(next->S[0] - next->next->S[0]);
-			next->a[10] = c[10] * abs(next->S[1] - next->next->S[1]);
-			next->a[11] = c[11] * abs(next->S[2] - next->next->S[2]);
+			next->a[9] = c[9] * next->S[0] ;
+			next->a[10] = c[10] *next->S[1];
+			next->a[11] = c[11] * next->S[2];
 		}
 		next->a[0] = 0;
 		for (i = 1; i < M + 1; i++) {
