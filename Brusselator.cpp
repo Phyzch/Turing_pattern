@@ -6,6 +6,42 @@
 using namespace std;
 long timee = time(NULL);
 long timee1 = long(time(NULL));
+
+// initialize static variables.
+// number of box in our simulation.  numbox * length = L (total length we are going to do simulation.)
+int Brusselator_reaction_system::numbox=0;
+
+// change size of box here.
+double Brusselator_reaction::length = 0; // length stands for the size of box doing simulation.
+
+//below are diffusion rates scaled with the length we set for each box(0.1)
+double Brusselator_reaction::DX2 = 0 ;
+double Brusselator_reaction::DX1 = 0;
+double Brusselator_reaction::DX3 = 0;
+
+// change particle number N here
+// Nparticle is particle number we can tune
+double Brusselator_reaction::Nparticle =  0;
+
+//below are reaction coefficient beta_12, k_21, k_12, k_13, k_32, k_31, beta_21, k_23
+// Parameters only link with X_{1}, X_{2}
+double Brusselator_reaction::beta_12 = 0; // we stop rescale reaction parameters for particle number here.
+double Brusselator_reaction::beta_21 = 0;
+double Brusselator_reaction::k_21 = 0;
+double Brusselator_reaction::k_12 = 0;
+
+// parameters link with X_{3}
+double Brusselator_reaction::k_13 = 0;
+double Brusselator_reaction::k_32 = 0;
+double Brusselator_reaction::k_31 = 0;
+double Brusselator_reaction::k_23 = 0;
+
+// below are initial concentration of Um, Vm, Uc.
+int Brusselator_reaction::X1_0 = 0;
+int Brusselator_reaction::X2_0 = 0;
+int Brusselator_reaction::X3_0 = 0;
+
+
 // below are chemical reaction potential
 double Brusselator_reaction::chemical_potential = log(Brusselator_reaction::beta_12 / Brusselator_reaction::beta_21  * Brusselator_reaction::k_21 / Brusselator_reaction::k_12 );
 double Brusselator_reaction::c[M + 1] = {0, beta_12, beta_21, k_21, k_12, k_13, k_31, k_32, k_23, DX1, DX2, DX3  };

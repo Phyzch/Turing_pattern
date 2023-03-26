@@ -20,6 +20,7 @@ bool early_check=false;
 
 bool load= false;// bool variable, if set to true, the programme will load information from save_data.txt and continue simulation. If load==false, it will delete all information and results and restart.
 
+
 int main() {
     int i; // i means the file number, we cam generate many files simulated using different parameters or same parameters
 	double timestep = 1;  //timestep for outputting result, set to 1 means we output concentration every 1 seconds
