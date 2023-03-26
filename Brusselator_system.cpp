@@ -13,6 +13,7 @@ Brusselator_reaction_system::Brusselator_reaction_system(string path1, bool load
 	reaction_W2 = 0;
 	sequence_number = sequence_number1;
 	path = path1;
+    // read input parameter from input.txt
     set_input_parameter();
 	// create memory space for Brusselator_reaction class entity, with number of numbox(60 in our codes)
 	void * rawMemory = operator new(numbox * sizeof(Brusselator_reaction));
@@ -23,7 +24,7 @@ Brusselator_reaction_system::Brusselator_reaction_system(string path1, bool load
 	}
 	long timee = time(NULL);
 
-	if (load == true) {
+	if (load ) {
 		load_data();
 	}
 	// link different box together using link list
@@ -50,15 +51,13 @@ Brusselator_reaction_system::Brusselator_reaction_system(string path1, bool load
 	for (i = 0; i < numbox; i++) {
 		s[i].initialize_a();
 	}
-	stringstream ss;
-	string ch;
-	ss << sequence_number;
-	ss >> ch;
 
-	//���ղ�����ͬ�洢�ڲ�ͬsequence_number���ļ�������
+	string ch;
+    ch = std::to_string(sequence_number);
+
 	filename.assign("Brusselator_system.txt");
-	if (load == true) {
-		if (append == true) {
+	if (load) {
+		if (append) {
 			system_output.open(path + "/" + filename,ios::app);
 			diffusion_energy_file.open(path + "/diffusion_energy.txt",ios::app);
 			reaction_energy_file1.open(path + "/reaction_energy1.txt",ios::app);
@@ -118,7 +117,7 @@ void Brusselator_reaction_system::System_evolve() {
 	long timee = long(time(NULL));
 	double tau;
 	double bb, aa;
-	int miu;
+	int miu;  // index for reaction in box
 	a = 0;
 	bool mark1 = false;
 	double starttime, endtime, duration, duration1;
@@ -126,8 +125,8 @@ void Brusselator_reaction_system::System_evolve() {
 	duration1 = 0;
 	double deltaa = 0, deltanexta=0, deltaprevious=0;  // change of reaction rates a for box, previous box, next box
 	information << Brusselator_reaction::beta_12 << "," << Brusselator_reaction::beta_21 << "," << Brusselator_reaction::k_21 << "," <<
-		Brusselator_reaction::k_12 << "," << Brusselator_reaction::DUm << "," << Brusselator_reaction::DVm << "," << Brusselator_reaction::DUc << "," <<
-		Brusselator_reaction::k_13 << "," << Brusselator_reaction::k_32 << "," << Brusselator_reaction::k_23 << "," << Brusselator_reaction::k_31 << endl;
+                Brusselator_reaction::k_12 << "," << Brusselator_reaction::DX1 << "," << Brusselator_reaction::DX2 << "," << Brusselator_reaction::DX3 << "," <<
+                Brusselator_reaction::k_13 << "," << Brusselator_reaction::k_32 << "," << Brusselator_reaction::k_23 << "," << Brusselator_reaction::k_31 << endl;
 
 	information.close();
 
@@ -143,7 +142,8 @@ void Brusselator_reaction_system::System_evolve() {
 		if ((t - int(t / timestep + 1)*timestep) > -5 * tau) {
 			mark1 = false;
 		}
-		if ((t - int(t / timestep)*timestep) < 2 * tau && mark1 == false) {
+		if ((t - int(t / timestep)*timestep) < 2 * tau && !mark1 ) {
+            // output particle number S[0], S[1], S[2]
 			system_output << t;
 			for (i = 0; i < numbox; i++) {
 				system_output << "," << s[i].S[0];
@@ -159,6 +159,7 @@ void Brusselator_reaction_system::System_evolve() {
 				system_output << "," << s[i].S[2];
 			}
 			system_output << endl;
+            // output diffusion energy rate, reaction energy rate in cycle 1 and cycle 2.
 			diffusion_energy_file << t << "," << diffusion_W << endl;
 			reaction_energy_file1 << t << "," << reaction_W1 << endl;
 			reaction_energy_file2 << t << "," << reaction_W2 << endl;
@@ -185,7 +186,7 @@ void Brusselator_reaction_system::System_evolve() {
                     // we could continue our simulation
                     cout << sequence_number << endl;
                 } else {
-                    break; // pattern not right, discard this data.
+                    break; // pattern does not have right stripe number, discard this data.
                 }
             }
         }
@@ -204,11 +205,11 @@ void Brusselator_reaction_system::System_evolve() {
 				break;
 			}
 		}
-		//endtime = clock();
-		//duration += endtime - starttime;
+
 		aa = aa - (bb - s[miu].a[0]);
 		// now aa can be used in Brusselator_reaction::Gillespie_simulation() to decide which reaction the system take
  		if (aa > s[miu].a[0]) {
+             cout << "something wrong about rate calculation in Gillespie algorithm" << endl;
 			system("pause"); // this means our code has something wrong here
 		}
 		deltaa = -s[miu].a[0]; // We record the original value of total reaction rate a in box miu
@@ -221,17 +222,17 @@ void Brusselator_reaction_system::System_evolve() {
 		t = t + tau;
 		s[miu].Gillespie_simulation(duration1, aa, t, diffusion_W, reaction_W1,reaction_W2);
 		// update total reaction rate in whole system by only calculating change of reaction rate in our chosen box and box next to it
-		deltaa += s[miu].a[0];
+		deltaa += s[miu].a[0]; // deltaa : change of rate in current box.
 		a = a + deltaa;
 		if (miu != numbox - 1) {
 			if (deltanexta != -s[miu + 1].a[0]) {
 				deltanexta = deltanexta + s[miu + 1].a[0];
-				a = a + deltanexta;
+				a = a + deltanexta; // delta_nexta : change of rate in next box
 			}
 		}
 		if (miu != 0) {
 			deltaprevious = deltaprevious + s[miu - 1].a[0];
-			a = a + deltaprevious;
+			a = a + deltaprevious; // deltapreviousa : change of rate in previous box.
 		}
         step=step+1;
 	}
@@ -278,11 +279,11 @@ void Brusselator_reaction_system::load_data() {
 		infile >> c;
 		infile >> Brusselator_reaction::k_12;
 		infile >> c;
-		infile >> Brusselator_reaction::DUm;
+		infile >> Brusselator_reaction::DX1;
 		infile >> c;
-		infile >> Brusselator_reaction::DVm;
+		infile >> Brusselator_reaction::DX2;
 		infile >> c;
-		infile >> Brusselator_reaction::DUc;
+		infile >> Brusselator_reaction::DX3;
 		infile >> c;
 		infile >> Brusselator_reaction::k_13;
 		infile >> c;
@@ -300,9 +301,9 @@ void Brusselator_reaction_system::load_data() {
 		Brusselator_reaction::c[6] = Brusselator_reaction::k_31;
 		Brusselator_reaction::c[7] = Brusselator_reaction::k_32;
 		Brusselator_reaction::c[8] = Brusselator_reaction::k_23;
-		Brusselator_reaction::c[9] = Brusselator_reaction::DUm;
-		Brusselator_reaction::c[10] = Brusselator_reaction::DVm;
-		Brusselator_reaction::c[11] = Brusselator_reaction::DUc;
+		Brusselator_reaction::c[9] = Brusselator_reaction::DX1;
+		Brusselator_reaction::c[10] = Brusselator_reaction::DX2;
+		Brusselator_reaction::c[11] = Brusselator_reaction::DX3;
 	}
 	infile.close();
 }
@@ -316,9 +317,9 @@ void Brusselator_reaction_system::save_data(){
         outfile<<s[i].S[0]<<","<<s[i].S[1]<<","<<s[i].S[2]<<",";
     }
     outfile<<t<<",";
-    outfile<<Brusselator_reaction::beta_12 << "," << Brusselator_reaction::beta_21 << "," << Brusselator_reaction::k_21 << "," <<
-           Brusselator_reaction::k_12 << "," << Brusselator_reaction::DUm << "," << Brusselator_reaction::DVm << "," << Brusselator_reaction::DUc << "," <<
-           Brusselator_reaction::k_13 << "," << Brusselator_reaction::k_32 << "," << Brusselator_reaction::k_23 << "," << Brusselator_reaction::k_31 << endl;
+    outfile << Brusselator_reaction::beta_12 << "," << Brusselator_reaction::beta_21 << "," << Brusselator_reaction::k_21 << "," <<
+            Brusselator_reaction::k_12 << "," << Brusselator_reaction::DX1 << "," << Brusselator_reaction::DX2 << "," << Brusselator_reaction::DX3 << "," <<
+            Brusselator_reaction::k_13 << "," << Brusselator_reaction::k_32 << "," << Brusselator_reaction::k_23 << "," << Brusselator_reaction::k_31 << endl;
     outfile.close();
 }
 
@@ -334,26 +335,27 @@ void Brusselator_reaction_system::set_input_parameter(){
         Brusselator_reaction::Nparticle = Nparticle_scale * Brusselator_reaction::length * 120 / 400;
         input >> Brusselator_reaction_system::simulation_time;
 
-        input >> Brusselator_reaction::DUm >> Brusselator_reaction::DVm >> Brusselator_reaction::DUc;
-        Brusselator_reaction::DUm =
-                Brusselator_reaction::DUm / (Brusselator_reaction::length * Brusselator_reaction::length);
-        Brusselator_reaction::DVm =
-                Brusselator_reaction::DVm / (Brusselator_reaction::length * Brusselator_reaction::length);
-        Brusselator_reaction::DUc =
-                Brusselator_reaction::DUc / (Brusselator_reaction::length * Brusselator_reaction::length);
-        input >> Brusselator_reaction::beta_12;
-        Brusselator_reaction::beta_12=Brusselator_reaction::beta_12/(pow(10 * Brusselator_reaction::length *120/400,2));
+        input >> Brusselator_reaction::DX1 >> Brusselator_reaction::DX2 >> Brusselator_reaction::DX3;
+        Brusselator_reaction::DX1 =
+                Brusselator_reaction::DX1 / (Brusselator_reaction::length * Brusselator_reaction::length);
+        Brusselator_reaction::DX2 =
+                Brusselator_reaction::DX2 / (Brusselator_reaction::length * Brusselator_reaction::length);
+        Brusselator_reaction::DX3 =
+                Brusselator_reaction::DX3 / (Brusselator_reaction::length * Brusselator_reaction::length);
+        input >> Brusselator_reaction::beta_12; // auto catalytic reaction rate
+        Brusselator_reaction::beta_12=Brusselator_reaction::beta_12/(pow(Nparticle_scale * Brusselator_reaction::length *120/400,2));
         double beta_21_ratio;
         input >> beta_21_ratio;
         Brusselator_reaction::beta_21 = beta_21_ratio * Brusselator_reaction::beta_12;
+        // linear reaction rate.
         input >> Brusselator_reaction::k_21 >> Brusselator_reaction::k_12 >> Brusselator_reaction::k_13
               >> Brusselator_reaction::k_32 >> Brusselator_reaction::k_31 >> Brusselator_reaction::k_23;
-        // below are initial concentration of Um, Vm, Uc.
-        Brusselator_reaction::Um0 = 123 * Brusselator_reaction::Nparticle;
-        Brusselator_reaction::Vm0 = 177 * Brusselator_reaction::Nparticle;
-        Brusselator_reaction::Uc0 = 100 * Brusselator_reaction::Nparticle;
+        // below are initial concentration of X1, X2, X3.
+        Brusselator_reaction::X1_0 = 123 * Brusselator_reaction::Nparticle;
+        Brusselator_reaction::X2_0 = 177 * Brusselator_reaction::Nparticle;
+        Brusselator_reaction::X3_0 = 100 * Brusselator_reaction::Nparticle;
 
-        // set c:
+        // set reaction constant c:
         Brusselator_reaction::c[1] = Brusselator_reaction::beta_12;
         Brusselator_reaction::c[2] = Brusselator_reaction::beta_21;
         Brusselator_reaction::c[3] = Brusselator_reaction::k_21;
@@ -362,9 +364,9 @@ void Brusselator_reaction_system::set_input_parameter(){
         Brusselator_reaction::c[6] = Brusselator_reaction::k_31;
         Brusselator_reaction::c[7] = Brusselator_reaction::k_32;
         Brusselator_reaction::c[8] = Brusselator_reaction::k_23;
-        Brusselator_reaction::c[9] = Brusselator_reaction::DUm;
-        Brusselator_reaction::c[10] = Brusselator_reaction::DVm;
-        Brusselator_reaction::c[11] = Brusselator_reaction::DUc;
+        Brusselator_reaction::c[9] = Brusselator_reaction::DX1;
+        Brusselator_reaction::c[10] = Brusselator_reaction::DX2;
+        Brusselator_reaction::c[11] = Brusselator_reaction::DX3;
         Brusselator_reaction::chemical_potential = log(Brusselator_reaction::beta_12 / Brusselator_reaction::beta_21  * Brusselator_reaction::k_21 / Brusselator_reaction::k_12 );
     }
     else{

@@ -11,39 +11,6 @@
 using namespace std;
 namespace fs= std::experimental::filesystem;
 
-// number of box in our simulation.  numbox * length = L (total length we are going to do simulation.)
-int Brusselator_reaction_system::numbox=0;
-
-// change size of box here.
-double Brusselator_reaction::length = 0; // length stands for the size of box doing simulation.
-
-//below are diffusion rates scaled with the length we set for each box(0.1)
-double Brusselator_reaction::DVm = 0 ;
-double Brusselator_reaction::DUm = 0;
-double Brusselator_reaction::DUc = 0;
-
-// change particle number N here
-// Nparticle is particle number we can tune
-double Brusselator_reaction::Nparticle =  10 *Brusselator_reaction::length *120/400;
-
-//below are reaction coefficient beta_12, k_21, k_12, k_13, k_32, k_31, beta_21, k_23. remember we already tune beta12 to make it work with 10 times particle numbers, you can change it.
-// Parameters only link with X_{1}, X_{2}
-double Brusselator_reaction::beta_12 = 1.5*1e-4/(pow(10 * Brusselator_reaction::length *120/400,2)); // we stop rescale reaction parameters for particle number here.
-double Brusselator_reaction::beta_21 = 0.1 *Brusselator_reaction::beta_12;
-double Brusselator_reaction::k_21 = 3.6;
-double Brusselator_reaction::k_12 =0.5;
-
-// parameters link with X_{3}
-double Brusselator_reaction::k_13 = log(2)/50;
-double Brusselator_reaction::k_32 = log(2)/50;
-double Brusselator_reaction::k_31 = 3 * Brusselator_reaction::k_13;
-double Brusselator_reaction::k_23 = 0.001 *Brusselator_reaction::k_32;
-
-// below are initial concentration of Um, Vm, Uc.
-int Brusselator_reaction::Um0 = 123* Brusselator_reaction::Nparticle;
-int Brusselator_reaction::Vm0 = 177* Brusselator_reaction::Nparticle;
-int Brusselator_reaction::Uc0 = 100* Brusselator_reaction::Nparticle;
-
 
 //choice to append result to simulation result we already have or to do it from beginning.
 bool append=false;
@@ -61,11 +28,8 @@ int main() {
 	int Filenumber = 1;
 	auto parent_path= "/home/phyzch/CLionProjects/fixed_position_Turing_pattern/save_data/test/";
 	for (i = 1; i <= Filenumber; i++) {
-		long timee = time(NULL);
-		stringstream ss;
 		string ch;
-		ss << i;
-		ss >> ch;
+        ch = std::to_string(i);
 		string path = parent_path+ch;   // path_name, ch is the char form of number: "1","2","3",etc. Our result will be stored in these files.
         // check directory exists or not
 		struct stat statbuf;

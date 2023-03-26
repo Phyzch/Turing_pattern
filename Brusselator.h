@@ -15,17 +15,16 @@ private:
 	const static int N = 3; // Number of reactant species, we have Um,Vm,Uc, so N=3
 	const static int M = 14;// Number of Reactions (including diffusioin between boxes)
 	string filename; // filename for outputing files. (I set it to "Brusselator_System" in constructor, you can set it to the name you want.
-	ofstream output; 
 	int num; //index for reaction box. If we have 60 reaction box (each box have l=0.1, total length is 6), num should be in range [0,60) and it is integer
 	Brusselator_reaction * next;
 	Brusselator_reaction * previous; // linked list. Link to the box in front of it and box behind it. Use it to do diffusion simulation
 	static double chemical_potential; // chemical potential, defined as ln(k_21+/k_21-)
-	static int Um0, Uc0, Vm0; // initial species concentration.  You can decide it using homogeneous spatial concentration simulated by matlab code
+	static int X1_0, X3_0, X2_0; // initial species concentration.  You can decide it using homogeneous spatial concentration.
 	static double Nparticle; // Volume, we scale the total number of species by multiple all of them by V.
 public:
 	static double length; // length is the size of compartment (0.1) and L is the size of whole cell, L= Brusselator_reaction_system::numbox*length
     static double c[M + 1]; //  Reaction coefficient, we start from c[1], static member variable, initialize it in Brsselator.cpp (For detailed setting of Parameter, check Murray 2017 Nature Physics: Self-Organization and Positioning of bacterial Protein clusters
-    static double DUm, DVm, DUc; // diffusion rate for species Um, Vm, Uc
+    static double DX1, DX2, DX3; // diffusion rate for species Um, Vm, Uc
     static double beta_12, k_21, k_12, k_13, k_32, k_31; // reactioin coefficient, same as defined in our note
 	static double k_23, beta_21; //  beta_21 is reverse reaction coefficient of beta_12, k_23 is reverse reaction rate for k_32. Check our SI for detail
 	friend class Brusselator_reaction_system; // Brusselator_reaction_System, whole reaction system containing many Brusselator_reaction
