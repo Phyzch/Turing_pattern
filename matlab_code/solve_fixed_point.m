@@ -1,13 +1,13 @@
-function z=solve_fixed_point(sigma,sigma1,ep,beta,gamma,alpha,beta1,sigma2)
+function z=solve_fixed_point(k13,k23,k31,beta_12,k21,k12,beta_21,k32)
 
     function F=root3(z)
-    um=z(1);
-    vm=z(2);
-    uc=z(3);
-    F(1)=-alpha*um-beta*um*vm^2+gamma*vm+ep*uc- sigma *um+beta1*vm^3;
-    F(2)=alpha*um+beta*um*vm^2-gamma*vm- sigma1 *vm-beta1*vm^3+sigma2*uc;
-    F(3)=- ep *uc+sigma*um+sigma1*vm-sigma2*uc;
-    F(4)=um+vm+uc-400;
+    X1=z(1);
+    X2=z(2);
+    X3=z(3);
+    F(1) = -k12 * X1 - beta_12 * X1 * X2^2 + k21 * X2 + k31 * X3 - k13 *X1 +beta_21 * X2^3;
+    F(2) = k12 * X1 + beta_12 * X1 * X2^2 - k21 * X2 - k23 * X2 - beta_21 * X2^3 + k32 * X3;
+    F(3) = - k31 * X3 + k13 * X1 + k23 * X2 - k32 * X3;
+    F(4) = X1+X2+X3-400;
     end
 z0=[100,190,110];
 ff=optimset('display','off');

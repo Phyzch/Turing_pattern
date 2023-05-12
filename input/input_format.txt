@@ -1,0 +1,5 @@
+num_box, length, Nparticle_scale, simulation_time,
+
+DX1, DX2, DX3, 
+beta12, beta21/beta12, 
+k_21, k_12, k_13, k_23, k_31, k_32

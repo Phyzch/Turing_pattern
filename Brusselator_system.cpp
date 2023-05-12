@@ -15,6 +15,7 @@ Brusselator_reaction_system::Brusselator_reaction_system(string path1, bool load
 	path = path1;
     // read input parameter from input.txt
     set_input_parameter();
+
 	// create memory space for Brusselator_reaction class entity, with number of numbox(60 in our codes)
 	void * rawMemory = operator new(numbox * sizeof(Brusselator_reaction));
 	s = reinterpret_cast<Brusselator_reaction *>(rawMemory);
@@ -349,7 +350,7 @@ void Brusselator_reaction_system::set_input_parameter(){
         Brusselator_reaction::beta_21 = beta_21_ratio * Brusselator_reaction::beta_12;
         // linear reaction rate.
         input >> Brusselator_reaction::k_21 >> Brusselator_reaction::k_12 >> Brusselator_reaction::k_13
-              >> Brusselator_reaction::k_32 >> Brusselator_reaction::k_31 >> Brusselator_reaction::k_23;
+              >> Brusselator_reaction::k_23 >> Brusselator_reaction::k_31 >> Brusselator_reaction::k_32;
         // below are initial concentration of X1, X2, X3.
         Brusselator_reaction::X1_0 = 123 * Brusselator_reaction::Nparticle;
         Brusselator_reaction::X2_0 = 177 * Brusselator_reaction::Nparticle;

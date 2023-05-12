@@ -286,8 +286,8 @@ void Brusselator_reaction::Gillespie_simulation(double &duration, double aa, dou
 		next->a[4] = c[4] * next->S[0];
 		next->a[5] = c[5] * next->S[0];
 		next->a[6] = c[6] * next->S[2];
-		next->a[7] = c[7] * next->S[1];
-		next->a[8] = c[8] * next->S[2];
+		next->a[7] = c[7] * next->S[2];
+		next->a[8] = c[8] * next->S[1];
 		if (next->next != NULL) {
 			next->a[9] = c[9] * next->S[0] ;
 			next->a[10] = c[10] *next->S[1];

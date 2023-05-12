@@ -27,7 +27,7 @@ int main() {
 	//ifstream sample;
 	char c;
 	int Filenumber = 1;
-	auto parent_path= "/home/phyzch/CLionProjects/fixed_position_Turing_pattern/save_data/test/";
+	auto parent_path= "/home/phyzch/CLionProjects/Turing_pattern/Turing_pattern/save_data/test/";
 	for (i = 1; i <= Filenumber; i++) {
 		string ch;
         ch = std::to_string(i);
